@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday 9 October! 🎂 เซอร์ไพรส์วันเกิดสุดพิเศษ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Prompt & Mitr -->
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;600&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background: linear-gradient(135deg, #ffe5ec 0%, #ffc2d1 50%, #e8aeef 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-mitr {
+            font-family: 'Mitr', sans-serif;
+        }
+
+        /* Floating Balloons Animation */
+        .balloon-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .balloon {
+            position: absolute;
+            bottom: -120px;
+            opacity: 0.85;
+            animation: floatUp 12s infinite ease-in;
+            border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+        }
+
+        .balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 16px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.85; }
+            100% { transform: translateY(-120vh) rotate(20deg); opacity: 0; }
+        }
+
+        /* 3D Flip Card Effect */
+        .card-container {
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1.5rem;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* Candle Flame Animation */
+        .flame {
+            background-color: #ff9d00;
+            border-radius: 50% 50% 20% 20%;
+            box-shadow: 0 0 12px #ff9d00, 0 0 24px #ff5100;
+            animation: flicker 0.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes flicker {
+            0% { transform: scale(0.95) rotate(-2deg); opacity: 0.85; }
+            100% { transform: scale(1.15) rotate(2deg); opacity: 1; }
+        }
+
+        .smoke {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: rgba(200, 200, 200, 0.8);
+            border-radius: 50%;
+            animation: smokeRise 1.5s ease-out forwards;
+        }
+
+        @keyframes smokeRise {
+            0% { transform: translate(-50%, 0) scale(1); opacity: 0.8; }
+            100% { transform: translate(-50%, -30px) scale(3); opacity: 0; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffe5ec;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffb3c6;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="relative text-gray-800 pb-20">
+
+    <div class="balloon-container" id="balloonContainer"></div>
+
+    <!-- Top Floating Action Bar -->
+    <div class="fixed top-4 right-4 z-50 flex flex-wrap gap-2 justify-end">
+        <button onclick="openCustomizeModal()" class="bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold px-4 py-2.5 rounded-full shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 text-xs md:text-sm">
+            <i class="fas fa-sliders-h text-base"></i> <span>ปรับแต่งการ์ด</span>
+        </button>
+        <button onclick="openShareModal()" class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold px-4 py-2.5 rounded-full shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 text-xs md:text-sm">
+            <i class="fas fa-paper-plane text-base"></i> <span>ส่งให้เพื่อน</span>
+        </button>
+        <button id="musicBtn" onclick="toggleMusic()" class="bg-white/90 backdrop-blur-md hover:bg-white text-pink-600 font-semibold px-4 py-2.5 rounded-full shadow-lg border border-pink-200 transition-all transform hover:scale-105 flex items-center gap-2 text-xs md:text-sm">
+            <i id="musicIcon" class="fas fa-music text-base animate-bounce"></i>
+            <span id="musicText" class="hidden sm:inline">เปิดเพลงวันเกิด</span>
+        </button>
+    </div>
+
+    <!-- Hidden Audio Element for Custom MP3 -->
+    <audio id="bgAudio" loop class="hidden"></audio>
+
+    <main class="max-w-4xl mx-auto px-4 pt-16 md:pt-20 relative z-20">
+
+        <header class="text-center mb-8">
+            <div class="inline-block bg-white/70 backdrop-blur-sm px-6 py-1.5 rounded-full border border-pink-200 mb-3 text-pink-600 font-medium text-xs md:text-sm shadow-sm">
+                🎉 Today is Your Special Day! ✨
+            </div>
+            <h1 class="text-4xl md:text-6xl font-extrabold font-mitr text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 mb-2 drop-shadow-sm">
+                Happy Birthday! 🎂
+            </h1>
+            <p id="recipientDisplay" class="text-2xl md:text-3xl font-semibold text-pink-700 font-mitr">
+                สุขสันต์วันเกิดนะคนเก่ง! ❤️
+            </p>
+        </header>
+
+        <!-- Birthday Cake Section -->
+        <section class="bg-white/80 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-xl border border-white/60 mb-10 text-center relative overflow-hidden">
+            <h2 class="text-2xl font-bold text-gray-800 font-mitr mb-2">เค้กวันเกิดสุดพิเศษ 🍰</h2>
+            <p class="text-gray-600 text-xs md:text-sm mb-6">ตั้งจิตอธิษฐานแล้วกดปุ่ม "เป่าเทียน" ด้านล่างเพื่อรับพรวันเกิดได้เลย!</p>
+
+            <div class="relative w-56 h-56 mx-auto my-2 flex items-end justify-center">
+                <!-- Plate -->
+                <div class="absolute bottom-2 w-56 h-6 bg-gray-200 rounded-full shadow-md border-b-4 border-gray-300 z-0"></div>
+                <!-- Bottom Cake Layer -->
+                <div class="absolute bottom-6 w-44 h-16 bg-pink-400 rounded-t-2xl shadow-inner flex justify-around items-center px-2 z-10 border-b-4 border-pink-500">
+                    <div class="w-4 h-4 bg-yellow-200 rounded-full border-2 border-pink-500"></div>
+                    <div class="w-4 h-4 bg-white rounded-full border-2 border-pink-500"></div>
+                    <div class="w-4 h-4 bg-yellow-200 rounded-full border-2 border-pink-500"></div>
+                    <div class="w-4 h-4 bg-white rounded-full border-2 border-pink-500"></div>
+                </div>
+                <!-- Cream Middle Layer -->
+                <div class="absolute bottom-[80px] w-44 h-4 bg-white rounded-full shadow z-20"></div>
+                <!-- Top Cake Layer -->
+                <div class="absolute bottom-[92px] w-32 h-14 bg-pink-300 rounded-t-2xl shadow-inner flex justify-around items-center px-2 z-30 border-b-4 border-pink-400">
+                    <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                    <div class="w-3 h-3 bg-yellow-300 rounded-full"></div>
+                    <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
+                </div>
+                <!-- Top Cream Layer -->
+                <div class="absolute bottom-[144px] w-32 h-4 bg-white rounded-full shadow z-40"></div>
+
+                <!-- Candle sitting perfectly on top of cake -->
+                <div id="candle" class="absolute bottom-[148px] z-50 flex flex-col items-center cursor-pointer group" onclick="blowOutCandle()">
+                    <div id="flame" class="flame w-4 h-6 mb-1"></div>
+                    <div id="smokeContainer" class="relative"></div>
+                    <div class="w-3.5 h-10 bg-gradient-to-r from-yellow-300 via-pink-300 to-yellow-300 rounded-t-sm shadow border-t border-yellow-200"></div>
+                </div>
+            </div>
+
+            <button id="blowBtn" onclick="blowOutCandle()" class="mt-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transform hover:scale-105 transition-all flex items-center gap-2 mx-auto text-sm md:text-base">
+                <i class="fas fa-wind"></i> เป่าเทียนวันเกิด 🌬️
+            </button>
+            <p id="candleWishMsg" class="hidden mt-4 text-base md:text-lg font-bold text-pink-600 animate-pulse">
+                ✨ พรของคุณได้รับการอธิษฐานแล้ว! ขอให้มีความสุขมากๆ น้า ✨
+            </p>
+        </section>
+
+        <!-- 3D Flip Greeting Card Section -->
+        <section class="mb-10">
+            <h2 class="text-2xl font-bold text-gray-800 font-mitr mb-2 text-center">การ์ดอวยพรความรู้สึก 💌</h2>
+            <p class="text-center text-gray-600 text-xs md:text-sm mb-4">คลิกที่การ์ดเพื่อเปิดอ่านคำอวยพรสุดพิเศษ</p>
+
+            <div class="card-container w-full max-w-md mx-auto h-80 cursor-pointer" onclick="flipCard()">
+                <div id="cardInner" class="card-inner shadow-2xl rounded-3xl">
+                    <div class="card-front bg-gradient-to-br from-pink-500 to-purple-600 p-8 text-white flex flex-col items-center justify-center text-center border-4 border-white/50">
+                        <div class="text-6xl mb-4 animate-bounce">🎁</div>
+                        <h3 class="text-2xl font-bold font-mitr">เปิดดูคำอวยพรตรงนี้</h3>
+                        <p class="text-pink-100 text-xs mt-2">คลิกเพื่อพลิกการ์ด 👆</p>
+                    </div>
+
+                    <div class="card-back bg-white p-6 md:p-8 text-gray-800 flex flex-col justify-between border-4 border-pink-200 overflow-y-auto">
+                        <div>
+                            <div class="flex justify-between items-center border-b border-pink-100 pb-3 mb-3">
+                                <h4 class="font-bold text-pink-600 font-mitr text-base md:text-lg">ถึง... <span id="cardRecipientDisplay">เจ้าของวันเกิด</span> ❤️</h4>
+                                <span class="text-[10px] bg-pink-100 text-pink-600 px-2 py-0.5 rounded-full font-medium">Special Note</span>
+                            </div>
+                            <p id="cardMessageDisplay" class="text-gray-700 text-xs md:text-sm leading-relaxed text-left whitespace-pre-line">
+                                ขอให้ปีนี้เป็นปีที่เต็มไปด้วยรอยยิ้ม ความสุข และสมหวังในทุกๆ เรื่องเลยนะ! 
+                                ขอบคุณที่เป็นรอยยิ้มและสร้างความสดใสให้คนรอบข้างเสมอมา 
+                                ขอให้สุขภาพแข็งแรง เจอแต่เรื่องดีๆ และผู้คนดีๆ ในชีวิตน้า 💖
+                            </p>
+                        </div>
+                        <div class="text-right pt-3 border-t border-pink-100 mt-2">
+                            <p class="text-[10px] text-gray-400">ด้วยรักและอวยพรเสมอ</p>
+                            <p id="cardSenderDisplay" class="font-bold text-pink-500 font-mitr text-xs md:text-sm">จาก... คนที่คุณก็รู้ว่าใคร 🥰</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Memory Photo Slideshow Section -->
+        <section class="bg-white/80 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-xl border border-white/60 mb-10">
+            <h2 class="text-2xl font-bold text-gray-800 font-mitr mb-1 text-center">🎂 9 October 📸</h2>
+            <p class="text-center text-gray-600 text-xs md:text-sm mb-6">รวมภาพความทรงจำและรอยยิ้มสุดพิเศษ</p>
+
+            <div class="relative max-w-lg mx-auto overflow-hidden rounded-2xl shadow-lg border-4 border-white bg-gray-100">
+                <div class="aspect-w-4 aspect-h-3 h-64 md:h-80 relative flex items-center justify-center bg-pink-50">
+                    <img id="slideshowImg" src="https://placehold.co/600x400/ffb3c6/ffffff?text=Memory+1" alt="Memory Photo" class="w-full h-full object-cover transition-all duration-500">
+                    <div id="slideshowCaption" class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white p-4 text-center text-xs md:text-sm font-medium">
+                        รอยยิ้มแสนสดใส ความทรงจำแรกของเรา ✨
+                    </div>
+                </div>
+
+                <button onclick="prevSlide()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all">
+                    <i class="fas fa-chevron-left text-base"></i>
+                </button>
+                <button onclick="nextSlide()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all">
+                    <i class="fas fa-chevron-right text-base"></i>
+                </button>
+            </div>
+
+            <div id="dotsContainer" class="flex justify-center gap-2 mt-4"></div>
+        </section>
+
+        <!-- Guestbook / Wishes Section -->
+        <section class="bg-white/80 backdrop-blur-md rounded-3xl p-6 md:p-8 shadow-xl border border-white/60 mb-10">
+            <h2 class="text-2xl font-bold text-gray-800 font-mitr mb-2 text-center">ส่งความรู้สึกกลับ 🎉</h2>
+            <p class="text-center text-gray-600 text-xs md:text-sm mb-6">เขียนความรู้สึกหรือคำอธิษฐานบันทึกเก็บไว้ได้เลย</p>
+
+            <div class="max-w-lg mx-auto">
+                <div class="flex gap-2 mb-4">
+                    <input type="text" id="wishInput" placeholder="พิมพ์ความรู้สึก หรือคำขอพรของคุณ..." class="flex-1 px-4 py-2.5 rounded-xl border border-pink-200 focus:outline-none focus:ring-2 focus:ring-pink-400 text-xs md:text-sm bg-white/90">
+                    <button onclick="addWish()" class="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2.5 rounded-xl shadow-md transition-all text-xs md:text-sm flex items-center gap-1 shrink-0">
+                        <i class="fas fa-paper-plane"></i> บันทึก
+                    </button>
+                </div>
+                <div id="wishesList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+            </div>
+        </section>
+
+        <footer class="text-center text-gray-600 text-xs md:text-sm py-4">
+            <p class="mb-2">สร้างด้วย ❤️ สำหรับวันเกิดสุดพิเศษของคุณ</p>
+            <button onclick="triggerConfetti()" class="text-pink-600 hover:text-pink-700 font-semibold underline cursor-pointer">
+                🎉 ยิงพลุกระดาษฉลองอีกรอบ!
+            </button>
+        </footer>
+
+    </main>
+
+    <!-- MODAL 1: CUSTOMIZE MODAL -->
+    <div id="customizeModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 shadow-2xl relative border border-pink-100">
+            <button onclick="closeCustomizeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <h3 class="text-2xl font-bold font-mitr text-pink-600 mb-1 flex items-center gap-2">
+                <i class="fas fa-sliders-h"></i> ปรับแต่งข้อมูลการ์ดวันเกิด
+            </h3>
+            <p class="text-gray-500 text-xs mb-6">แก้ไขเนื้อหา รูปภาพ และเพลงให้โดนใจเจ้าของวันเกิด (ระบบบีบอัดภาพอัตโนมัติ ไม่ค้างแน่นอน)</p>
+
+            <form id="customizeForm" onsubmit="saveCustomization(event)" class="space-y-5">
+                
+                <!-- Recipient & Sender -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">ชื่อเจ้าของวันเกิด 👤</label>
+                        <input type="text" id="editRecipient" class="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-pink-400 focus:outline-none text-xs md:text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">ชื่อผู้ส่ง (หรือคำอวยพรปิดท้าย) ✍️</label>
+                        <input type="text" id="editSender" class="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-pink-400 focus:outline-none text-xs md:text-sm" required>
+                    </div>
+                </div>
+
+                <!-- Card Message -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">ข้อความในการ์ดอวยพร 💌</label>
+                    <textarea id="editMessage" rows="3" class="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-pink-400 focus:outline-none text-xs md:text-sm" required></textarea>
+                </div>
+
+                <!-- Custom Music URL -->
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">ลิงก์เพลงวันเกิด MP3 (เว้นว่างไว้หากต้องการใช้เพลงดนตรีเริ่มต้น) 🎵</label>
+                    <input type="url" id="editMusicUrl" placeholder="https://example.com/song.mp3" class="w-full px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-pink-400 focus:outline-none text-xs md:text-sm">
+                </div>
+
+                <!-- Photo Gallery Customization -->
+                <div class="border-t border-pink-100 pt-4">
+                    <label class="block text-xs md:text-sm font-bold text-pink-600 mb-2">จัดการรูปภาพความทรงจำ (9 October) 🖼️</label>
+                    
+                    <div id="editPhotosList" class="space-y-4">
+                        <!-- Dynamic Photo Items -->
+                    </div>
+
+                    <button type="button" onclick="addPhotoField()" class="mt-3 text-xs bg-pink-100 hover:bg-pink-200 text-pink-700 font-bold py-2 px-4 rounded-xl transition-all flex items-center gap-1">
+                        <i class="fas fa-plus"></i> เพิ่มรูปภาพใหม่
+                    </button>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="pt-4 flex gap-3">
+                    <button type="button" onclick="closeCustomizeModal()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition-all text-xs md:text-sm">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all text-xs md:text-sm">
+                        บันทึกการเปลี่ยนแปลง ✨
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: SHARE & EXPORT MODAL -->
+    <div id="shareModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative border border-pink-100 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeShareModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <h3 class="text-2xl font-bold font-mitr text-pink-600 mb-1 flex items-center gap-2">
+                <i class="fas fa-paper-plane"></i> ส่งเว็บนี้ให้เจ้าของวันเกิด
+            </h3>
+            <p class="text-gray-500 text-xs mb-6">เลือกวิธีส่งมอบความประทับใจที่คุณปรับแต่งไว้เรียบร้อยแล้ว</p>
+
+            <div class="space-y-5">
+
+                <!-- Download File Method -->
+                <div class="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-5 rounded-2xl shadow-md">
+                    <h4 class="font-bold text-sm md:text-base mb-1 flex items-center gap-2">
+                        <i class="fas fa-file-download"></i> วิธีที่ 1: ดาวน์โหลดไฟล์เว็บ (.html) [แนะนำที่สุด ⭐]
+                    </h4>
+                    <p class="text-xs text-purple-100 mb-4">ดาวน์โหลดไฟล์เว็บสำเร็จรูปที่ฝังข้อมูลที่คุณแก้ไขทั้งหมดไว้แล้ว นำไปส่งให้เพื่อนทางแชท หรือเอาไปทำเป็นเว็บเปิดดูออนไลน์ได้ฟรี!</p>
+                    <button onclick="exportHtmlFile()" class="w-full bg-white hover:bg-purple-50 text-purple-700 font-bold py-3 rounded-xl text-xs md:text-sm shadow-lg transition-all flex items-center justify-center gap-2">
+                        <i class="fas fa-download text-base"></i> ดาวน์โหลดไฟล์ birthday_card.html
+                    </button>
+                </div>
+
+                <!-- Copy Link Method -->
+                <div class="bg-pink-50 p-4 rounded-2xl border border-pink-200">
+                    <h4 class="font-bold text-gray-800 text-xs md:text-sm mb-1 flex items-center gap-2">
+                        <i class="fas fa-link text-pink-500"></i> วิธีที่ 2: คัดลอกลิงก์แชร์ตรง
+                    </h4>
+                    <p class="text-[11px] text-gray-600 mb-3">คัดลอกลิงก์ที่มีข้อมูลบันทึกอยู่สำหรับนำไปส่งให้เพื่อนทันที</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="shareUrlInput" readonly class="flex-1 bg-white px-3 py-2 rounded-xl border border-pink-200 text-xs text-gray-600 focus:outline-none">
+                        <button onclick="copyShareLink()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition-all shrink-0 flex items-center gap-1">
+                            <i class="fas fa-copy"></i> คัดลอกลิงก์
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hosting Guide -->
+                <div class="text-xs text-gray-600 bg-gray-50 p-4 rounded-2xl border border-gray-200 space-y-2">
+                    <p class="font-bold text-gray-800 text-xs flex items-center gap-1">
+                        <i class="fas fa-globe text-indigo-500"></i> อยากทำเป็นลิงก์เว็บชื่อสวยๆ ส่งให้เพื่อนในมือถือ? (ทำฟรี 10 วินาที):
+                    </p>
+                    <ol class="list-decimal list-inside space-y-1 text-[11px] text-gray-600">
+                        <li>กดปุ่ม <b>"ดาวน์โหลดไฟล์ birthday_card.html"</b> ด้านบน</li>
+                        <li>เปิดเว็บไซต์ <a href="https://app.netlify.com/drop" target="_blank" class="text-indigo-600 underline font-bold">app.netlify.com/drop</a> (บริการโฮสต์เว็บฟรี)</li>
+                        <li>ลากไฟล์ <code class="bg-gray-200 px-1 py-0.5 rounded">birthday_card.html</code> ไปวางในกล่อง Netlify</li>
+                        <li>คุณจะได้ **URL เว็บไซต์จริง** เอาไปส่งทาง LINE ให้เพื่อนเปิดดูบนมือถือได้ทันทีครับ!</li>
+                    </ol>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application Data Object
+        let appData = {
+            recipient: "Bank",
+            sender: "Queen",
+            message: "ขอให้ปีนี้เป็นปีที่เต็มไปด้วยรอยยิ้ม ความสุข และสมหวังในทุกๆ เรื่องเลยนะ!\nขอบคุณที่เป็นรอยยิ้มและสร้างความสดใสให้คนรอบข้างเสมอมา\nขอให้สุขภาพแข็งแรง เจอแต่เรื่องดีๆ และผู้คนดีๆ ในชีวิตน้า💖 ",
+            musicUrl: "",
+            slides: [
+                {
+                    url: "https://placehold.co/600x400/ffb3c6/ffffff?text=Memory+1",
+                    caption: "dek auan khong kao"
+                },
+                {
+                    url: "https://placehold.co/600x400/ffc2d1/ffffff?text=Memory+2",
+                    caption: "you and me"
+                }
+            ]
+        };
+
+        // --- 1. INITIALIZATION & HASH PARSING ---
+        window.onload = function() {
+            loadDataFromHash();
+            createBalloons();
+            renderPageData();
+            initSlideshow();
+
+            setTimeout(() => triggerConfetti(), 600);
+        };
+
+        function loadDataFromHash() {
+            try {
+                const hash = window.location.hash.substring(1);
+                if (hash) {
+                    const decoded = decodeURIComponent(atob(hash));
+                    const parsed = JSON.parse(decoded);
+                    if (parsed && parsed.recipient) {
+                        appData = parsed;
+                    }
+                }
+            } catch (e) {
+                console.log("Using default birthday data.");
+            }
+        }
+
+        function renderPageData() {
+            document.getElementById('recipientDisplay').innerText = `สุขสันต์วันเกิดนะ${appData.recipient}! ❤️`;
+            document.getElementById('cardRecipientDisplay').innerText = appData.recipient;
+            document.getElementById('cardSenderDisplay').innerText = `จาก... ${appData.sender}`;
+            document.getElementById('cardMessageDisplay').innerText = appData.message;
+
+            const bgAudio = document.getElementById('bgAudio');
+            if (appData.musicUrl) {
+                bgAudio.src = appData.musicUrl;
+            } else {
+                bgAudio.src = "";
+            }
+        }
+
+        // --- 2. CUSTOMIZATION MODAL & OPTIMIZED PHOTO COMPRESSION ---
+        function openCustomizeModal() {
+            document.getElementById('editRecipient').value = appData.recipient;
+            document.getElementById('editSender').value = appData.sender;
+            document.getElementById('editMessage').value = appData.message;
+            document.getElementById('editMusicUrl').value = appData.musicUrl || '';
+
+            renderPhotosEditList();
+            document.getElementById('customizeModal').classList.remove('hidden');
+        }
+
+        function closeCustomizeModal() {
+            document.getElementById('customizeModal').classList.add('hidden');
+        }
+
+        function renderPhotosEditList() {
+            const list = document.getElementById('editPhotosList');
+            list.innerHTML = '';
+
+            appData.slides.forEach((slide, index) => {
+                const item = document.createElement('div');
+                item.className = 'p-3 bg-gray-50 rounded-2xl border border-gray-200 relative space-y-2';
+                const isBase64 = slide.url.startsWith('data:');
+                
+                item.innerHTML = `
+                    <button type="button" onclick="removePhotoField(${index})" class="absolute top-2 right-2 text-red-400 hover:text-red-600 text-xs font-bold">
+                        <i class="fas fa-trash"></i> ลบ
+                    </button>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pr-8">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">ลิงก์ URL รูปภาพ</label>
+                            <input type="text" id="photoUrl_${index}" value="${isBase64 ? '[รูปภาพแนบในเครื่อง]' : slide.url}" onchange="updatePhotoUrlText(${index}, this.value)" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 text-xs focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 mb-1">หรือเลือกรูปจากเครื่อง (ย่อให้อัตโนมัติ)</label>
+                            <input type="file" accept="image/*" onchange="handleFileUploadWithCompression(${index}, this)" class="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:bg-pink-100 file:text-pink-700 hover:file:bg-pink-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-1">คำบรรยายรูปภาพ</label>
+                        <input type="text" id="photoCaption_${index}" value="${slide.caption}" class="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 text-xs focus:outline-none">
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function updatePhotoUrlText(index, val) {
+            if (!val.startsWith('[รูปภาพแนบ')) {
+                appData.slides[index].url = val;
+            }
+        }
+
+        // Auto Compress Image using HTML Canvas to prevent Browser Hanging
+        function handleFileUploadWithCompression(index, input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+
+                        // Set max width/height to 600px for optimal speed & quality
+                        const MAX_WIDTH = 600;
+                        const MAX_HEIGHT = 600;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Compress to JPEG with 0.7 quality
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        appData.slides[index].url = compressedDataUrl;
+                        document.getElementById(`photoUrl_${index}`).value = '[รูปภาพแนบในเครื่อง]';
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function addPhotoField() {
+            appData.slides.push({
+                url: "https://placehold.co/600x400/ffb3c6/ffffff?text=Memory+" + (appData.slides.length + 1),
+                caption: "ความทรงจำสุดประทับใจ ✨"
+            });
+            renderPhotosEditList();
+        }
+
+        function removePhotoField(index) {
+            if (appData.slides.length <= 1) {
+                alert("ต้องมีรูปภาพอย่างน้อย 1 รูปครับ");
+                return;
+            }
+            appData.slides.splice(index, 1);
+            renderPhotosEditList();
+        }
+
+        function saveCustomization(e) {
+            e.preventDefault();
+
+            appData.recipient = document.getElementById('editRecipient').value.trim();
+            appData.sender = document.getElementById('editSender').value.trim();
+            appData.message = document.getElementById('editMessage').value.trim();
+            appData.musicUrl = document.getElementById('editMusicUrl').value.trim();
+
+            // Save captions from inputs
+            appData.slides.forEach((_, idx) => {
+                const captionInput = document.getElementById(`photoCaption_${idx}`);
+                if (captionInput) {
+                    appData.slides[idx].caption = captionInput.value.trim();
+                }
+            });
+
+            renderPageData();
+            initSlideshow();
+            closeCustomizeModal();
+            triggerConfetti();
+
+            updateHashUrl();
+        }
+
+        function updateHashUrl() {
+            try {
+                const jsonStr = JSON.stringify(appData);
+                const encoded = btoa(encodeURIComponent(jsonStr));
+                window.location.hash = encoded;
+            } catch (err) {
+                console.log("URL string too long for hash, fallback to direct download/export.");
+            }
+        }
+
+        // --- 3. SHARE & EXPORT FUNCTIONS ---
+        function openShareModal() {
+            updateHashUrl();
+            document.getElementById('shareUrlInput').value = window.location.href;
+            document.getElementById('shareModal').classList.remove('hidden');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.add('hidden');
+        }
+
+        function copyShareLink() {
+            const input = document.getElementById('shareUrlInput');
+            input.select();
+            document.execCommand('copy');
+            alert('🎉 คัดลอกลิงก์เรียบร้อยแล้ว! นำไปส่งให้เจ้าของวันเกิดได้เลยครับ');
+        }
+
+        function exportHtmlFile() {
+            // Embed appData directly into exported code
+            let htmlContent = document.documentElement.outerHTML;
+            const replacedCode = `let appData = ${JSON.stringify(appData)};`;
+            htmlContent = htmlContent.replace(/let appData = \{[\s\S]*?\};/, replacedCode);
+
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `birthday_card_${appData.recipient}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- 4. BALLOONS & CONFETTI ---
+        const balloonColors = ['#ff70a6', '#ff9770', '#ffd670', '#e9ff70', '#a3c4f3', '#96e6b4', '#d8bbff'];
+
+        function createBalloons() {
+            const container = document.getElementById('balloonContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < 15; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                const color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+                const size = Math.floor(Math.random() * 25) + 45;
+                const left = Math.random() * 100;
+                const animDuration = Math.random() * 8 + 8;
+                const animDelay = Math.random() * 10;
+
+                balloon.style.backgroundColor = color;
+                balloon.style.width = `${size}px`;
+                balloon.style.height = `${size * 1.25}px`;
+                balloon.style.left = `${left}%`;
+                balloon.style.animationDuration = `${animDuration}s`;
+                balloon.style.animationDelay = `${animDelay}s`;
+
+                container.appendChild(balloon);
+            }
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            }
+        }
+
+        function triggerBigConfetti() {
+            if (typeof confetti === 'function') {
+                const duration = 3 * 1000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+                    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+                    if (Date.now() < end) requestAnimationFrame(frame);
+                })();
+            }
+        }
+
+        // --- 5. CANDLE & CARD INTERACTION ---
+        let isCandleBlown = false;
+
+        function blowOutCandle() {
+            if (isCandleBlown) return;
+
+            document.getElementById('flame').style.display = 'none';
+            isCandleBlown = true;
+
+            const smoke = document.createElement('div');
+            smoke.className = 'smoke';
+            document.getElementById('smokeContainer').appendChild(smoke);
+
+            const blowBtn = document.getElementById('blowBtn');
+            blowBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            blowBtn.innerHTML = '<i class="fas fa-check"></i> เป่าเทียนเรียบร้อยแล้ว!';
+            document.getElementById('candleWishMsg').classList.remove('hidden');
+
+            triggerBigConfetti();
+        }
+
+        function flipCard() {
+            document.getElementById('cardInner').classList.toggle('flipped');
+        }
+
+        // --- 6. SLIDESHOW ---
+        let currentSlide = 0;
+
+        function initSlideshow() {
+            currentSlide = 0;
+            const dotsContainer = document.getElementById('dotsContainer');
+            dotsContainer.innerHTML = '';
+
+            appData.slides.forEach((_, index) => {
+                const dot = document.createElement('button');
+                dot.className = `w-3 h-3 rounded-full transition-all ${index === 0 ? 'bg-pink-500 w-6' : 'bg-gray-300'}`;
+                dot.onclick = () => goToSlide(index);
+                dotsContainer.appendChild(dot);
+            });
+
+            updateSlideUI();
+        }
+
+        function updateSlideUI() {
+            if (appData.slides.length === 0) return;
+
+            const img = document.getElementById('slideshowImg');
+            const caption = document.getElementById('slideshowCaption');
+            const dots = document.getElementById('dotsContainer').children;
+
+            img.src = appData.slides[currentSlide].url;
+            caption.innerText = appData.slides[currentSlide].caption;
+
+            Array.from(dots).forEach((dot, index) => {
+                dot.className = index === currentSlide 
+                    ? 'w-6 h-3 rounded-full bg-pink-500 transition-all' 
+                    : 'w-3 h-3 rounded-full bg-gray-300 transition-all';
+            });
+        }
+
+        function nextSlide() {
+            if (appData.slides.length === 0) return;
+            currentSlide = (currentSlide + 1) % appData.slides.length;
+            updateSlideUI();
+        }
+
+        function prevSlide() {
+            if (appData.slides.length === 0) return;
+            currentSlide = (currentSlide - 1 + appData.slides.length) % appData.slides.length;
+            updateSlideUI();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlideUI();
+        }
+
+        // --- 7. WISHES / GUESTBOOK ---
+        function addWish() {
+            const input = document.getElementById('wishInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const list = document.getElementById('wishesList');
+            const newItem = document.createElement('div');
+            newItem.className = 'bg-pink-50 p-3 rounded-xl border border-pink-100 text-xs text-pink-700 flex justify-between items-center';
+            newItem.innerHTML = `
+                <span>✨ ${escapeHtml(text)}</span>
+                <span class="text-gray-400 text-[10px]">เมื่อครู่นี้</span>
+            `;
+
+            list.insertBefore(newItem, list.firstChild);
+            input.value = '';
+            triggerConfetti();
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, function(s) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s];
+            });
+        }
+
+        // --- 8. AUDIO & SYNTHESIZER MUSIC ---
+        let audioCtx = null;
+        let isPlaying = false;
+        let musicTimeout = null;
+
+        const notes = [
+            { note: 'C4', duration: 0.4 }, { note: 'C4', duration: 0.4 }, { note: 'D4', duration: 0.8 }, { note: 'C4', duration: 0.8 }, { note: 'F4', duration: 0.8 }, { note: 'E4', duration: 1.2 },
+            { note: 'C4', duration: 0.4 }, { note: 'C4', duration: 0.4 }, { note: 'D4', duration: 0.8 }, { note: 'C4', duration: 0.8 }, { note: 'G4', duration: 0.8 }, { note: 'F4', duration: 1.2 },
+            { note: 'C4', duration: 0.4 }, { note: 'C4', duration: 0.4 }, { note: 'C5', duration: 0.8 }, { note: 'A4', duration: 0.8 }, { note: 'F4', duration: 0.8 }, { note: 'E4', duration: 0.8 }, { note: 'D4', duration: 0.8 },
+            { note: 'A#4', duration: 0.4 }, { note: 'A#4', duration: 0.4 }, { note: 'A4', duration: 0.8 }, { note: 'F4', duration: 0.8 }, { note: 'G4', duration: 0.8 }, { note: 'F4', duration: 1.4 }
+        ];
+
+        const freqMap = { 'C4': 261.63, 'D4': 293.66, 'E4': 329.63, 'F4': 349.23, 'G4': 392.00, 'A4': 440.00, 'A#4': 466.16, 'C5': 523.25 };
+
+        function playNote(freq, duration) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration - 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playSong(index = 0) {
+            if (!isPlaying || appData.musicUrl) return;
+            if (index >= notes.length) {
+                musicTimeout = setTimeout(() => playSong(0), 1000);
+                return;
+            }
+            const current = notes[index];
+            if (freqMap[current.note]) playNote(freqMap[current.note], current.duration);
+            musicTimeout = setTimeout(() => playSong(index + 1), current.duration * 600);
+        }
+
+        function toggleMusic() {
+            const musicIcon = document.getElementById('musicIcon');
+            const musicText = document.getElementById('musicText');
+            const bgAudio = document.getElementById('bgAudio');
+
+            if (isPlaying) {
+                isPlaying = false;
+                if (appData.musicUrl) {
+                    bgAudio.pause();
+                } else {
+                    clearTimeout(musicTimeout);
+                }
+                musicIcon.className = 'fas fa-music text-base';
+                musicText.innerText = 'เปิดเพลงวันเกิด';
+            } else {
+                isPlaying = true;
+                musicIcon.className = 'fas fa-pause text-base animate-pulse';
+                musicText.innerText = 'ปิดเพลงวันเกิด';
+
+                if (appData.musicUrl) {
+                    bgAudio.play().catch(e => console.log('Audio playback blocked'));
+                } else {
+                    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    if (audioCtx.state === 'suspended') audioCtx.resume();
+                    playSong();
+                }
+                triggerConfetti();
+            }
+        }
+    </script>
+</body>
+</html>
